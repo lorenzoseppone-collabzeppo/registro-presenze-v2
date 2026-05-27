@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
 <title>Registro di Classe</title>
-<meta name="version" content="2025-05-27-v15c-forceupdate"/>
+<meta name="version" content="2025-05-27-v15d-fix-redirect"/>
 <meta name="description" content="Registro di Classe per la gestione della classe"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231a1a2e'><path d='M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z'/></svg>"/>
 <style>
@@ -1283,7 +1283,7 @@ function handleLogin(){
     auth.signInWithPopup(provider).catch(function(error){
       loginLoading=false;render();var msg='Errore durante il login.';
       if(error.code==='auth/popup-closed-by-user') return;
-      else if(error.code==='auth/popup-blocked'){auth.signInWithRedirect(provider);return;}
+      else if(error.code==='auth/popup-blocked'){msg='Il popup è stato bloccato. Per favore consenti i popup per questo sito e riprova.\n\nSu Chrome: Impostazioni → Impostazioni siti → Popup → Consenti';}
       else if(error.code==='auth/unauthorized-domain'){msg='Dominio "'+window.location.hostname+'" non autorizzato.\n\nVai su Firebase Console > Authentication > Settings > Authorized domains e aggiungi:\n'+window.location.hostname;}
       else if(error.code==='auth/operation-not-allowed'){msg='Login Google non abilitato. Abilitalo in Firebase Console.';}
       else{msg='Errore: '+error.message;}
@@ -1655,7 +1655,7 @@ function render(){
   if(classLocked){html+='</div>';}
 
   // Version indicator - always visible
-  html+='<div style="position:fixed;bottom:4px;right:6px;font-size:9px;color:#aaa;z-index:9999;pointer-events:none;font-weight:600" id="versionBadge">v15c</div>';
+  html+='<div style="position:fixed;bottom:4px;right:6px;font-size:9px;color:#aaa;z-index:9999;pointer-events:none;font-weight:600" id="versionBadge">v15d</div>';
 
   if(selectedChild>=0){html+=renderChildDetail(selectedChild);}
   if(showDietModal>=0){html+=renderDietModal(showDietModal);}
@@ -3252,19 +3252,9 @@ setInterval(function(){
   }
 },3000);
 
-// Auto-update: force reload if cached version is old
+// Auto-update: just save version, no redirect (redirect causes cache issues)
 (function(){
-  var CURRENT_VERSION='v15c';
-  var stored=localStorage.getItem('rp_app_version');
-  if(stored&&stored!==CURRENT_VERSION){
-    // Version changed - FORCE RELOAD bypassing cache
-    localStorage.setItem('rp_app_version',CURRENT_VERSION);
-    if('caches' in window){
-      caches.keys().then(function(names){for(var i=0;i<names.length;i++)caches.delete(names[i]);});
-    }
-    location.replace(location.href.split('?')[0]+'?v='+CURRENT_VERSION+'&t='+Date.now());
-    return;
-  }
+  var CURRENT_VERSION='v15d';
   localStorage.setItem('rp_app_version',CURRENT_VERSION);
 })();
 
